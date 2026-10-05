@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Welcome ItzFizz – Scroll Hero</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --bg: #14161a; --ink: #f2efe8; --muted: #9a9ca3; --road: #1d2026; --line: #3a3e47; --accent: #ff5a36;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) { --bg: #eceae4; --ink: #15171b; --muted: #5d6068; --road: #d9d6cd; --line: #aaa79d; }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Space Grotesk", system-ui, sans-serif; overflow-x: hidden; }
+
+  /* Hero */
+  .hero { height: 100vh; height: 100svh; position: relative; overflow: hidden; }
+  .stage { height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 14vh 5vw 8vh; }
+  .title {
+    margin: 0; text-align: center; font-weight: 500; font-size: clamp(1.1rem, 4.6vw, 4.2rem);
+    line-height: 1; will-change: transform; white-space: nowrap;
+  }
+  .title .l { display: inline-block; margin: 0 .22em; will-change: transform, opacity; }
+  .title .gap { display: inline-block; width: 1.4em; }
+
+  /* Road + car */
+  .road { position: relative; height: clamp(110px, 24vh, 190px); background: var(--road); margin: 0 -5vw; }
+  .dashes { position: absolute; left: 0; right: 0; top: 50%; height: 3px; display: flex; gap: 40px; width: 200%; will-change: transform; }
+  .dashes i { flex: 0 0 60px; background: var(--line); }
+  .car { position: absolute; left: 0; bottom: 26%; width: clamp(220px, 28vw, 340px); will-change: transform; }
+  .car svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  /* Stats */
+  .stats { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; will-change: transform; }
+  .stat { will-change: transform, opacity; }
+  .stat b { display: block; font-size: clamp(2rem, 5vw, 4rem); font-weight: 500; letter-spacing: -.02em; color: var(--ink); }
+  .stat span { display: block; margin-top: .4rem; font-size: .95rem; color: var(--muted); max-width: 22ch; line-height: 1.35; }
+  .stat:first-child b { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: 1fr 1fr; gap: 1.4rem 1rem; }
+    .title .l { margin: 0 .12em; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="stage">
+    <h1 class="title" id="title" aria-label="Welcome ItzFizz">WELCOME&nbsp;ITZFIZZ</h1>
+
+    <div class="road" aria-hidden="true">
+      <div class="dashes" id="dashes"></div>
+      <div class="car" id="car">
+        <svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 82 Q10 62 40 57 L92 54 L122 28 Q132 22 148 22 L214 22 Q230 22 240 33 L262 54 L296 60 Q312 64 312 82 L312 90 L10 90 Z" fill="#ff5a36"/>
+          <path d="M104 54 L128 32 Q134 28 146 28 L172 28 L172 54 Z M182 28 L212 28 Q222 28 228 36 L244 54 L182 54 Z" fill="#14161a" opacity=".85"/>
+          <rect x="10" y="78" width="302" height="4" fill="#00000030"/>
+          <g class="wheel" id="w1"><circle cx="82" cy="92" r="26" fill="#0c0d10"/><circle cx="82" cy="92" r="14" fill="#c9ccd3"/><path d="M82 80v24M70 92h24" stroke="#0c0d10" stroke-width="4"/></g>
+          <g class="wheel" id="w2"><circle cx="242" cy="92" r="26" fill="#0c0d10"/><circle cx="242" cy="92" r="14" fill="#c9ccd3"/><path d="M242 80v24M230 92h24" stroke="#0c0d10" stroke-width="4"/></g>
+        </svg>
+      </div>
+    </div>
+
+    <ul class="stats" id="stats">
+      <li class="stat"><b>58%</b><span>Increase in pick-up point use</span></li>
+      <li class="stat"><b>23%</b><span>Decrease in customer phone calls</span></li>
+      <li class="stat"><b>27%</b><span>Increase in pick-up point use</span></li>
+      <li class="stat"><b>40%</b><span>Decrease in customer phone calls</span></li>
+    </ul>
+  </div>
+</section>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// Build road dashes
+document.getElementById('dashes').innerHTML = '<i></i>'.repeat(40);
+
+// Split headline into letters (preserves the non-breaking gap between words)
+const title = document.getElementById('title');
+const [a, b] = ['WELCOME', 'ITZFIZZ'];
+title.innerHTML = [...a].map(c => `<span class="l" aria-hidden="true">${c}</span>`).join('')
+  + '<span class="gap"></span>'
+  + [...b].map(c => `<span class="l" aria-hidden="true">${c}</span>`).join('');
+
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (!reduce) {
+  // 1. Intro: staggered headline, then stats one by one
+  const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  intro
+    .from('.title .l', { y: 40, opacity: 0, duration: 1, stagger: 0.06 })
+    .addLabel('stats', '-=0.2');
+
+  // Stats enter strictly one after another, each fading up while its number counts up
+  document.querySelectorAll('.stat').forEach((stat, i) => {
+    const num = stat.querySelector('b');
+    const end = parseInt(num.textContent, 10);
+    const counter = { v: 0 };
+    const at = `stats+=${i * 0.5}`; // 0.5s gap between each stat
+    intro
+      .from(stat, { y: 30, opacity: 0, duration: 0.8 }, at)
+      .to(counter, {
+        v: end, duration: 1.1, ease: 'power2.out',
+        onUpdate: () => { num.textContent = Math.round(counter.v) + '%'; }
+      }, at);
+  });
+
+  // 2. Scroll-scrubbed timeline (pinned hero; progress driven by scroll, smoothed with scrub: 1)
+  const car = document.getElementById('car');
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: '#hero', start: 'top top', end: '+=160%',
+      pin: true, scrub: 1, anticipatePin: 1, invalidateOnRefresh: true
+    }
+  });
+
+  tl.fromTo(car, { x: () => -car.offsetWidth },
+                 { x: () => window.innerWidth, duration: 1 }, 0)
+    .to('#dashes', { xPercent: -25, duration: 1 }, 0)                         // road moves under the car
+    .to(['#w1', '#w2'], { rotation: 900, transformOrigin: '50% 50%', duration: 1 }, 0)
+    .to('.title', { scale: 1.12, y: -20, duration: 1 }, 0)
+    .to('.title .l', { opacity: 0.25, stagger: { each: 0.05, from: 'start' }, duration: 0.4 }, 0.1)
+    .to('.stats', { y: -30, duration: 1 }, 0)
+    .to('.stat', { opacity: 0.35, stagger: 0.1, duration: 0.4 }, 0.6);
+}
+</script>
+</body>
+</html>
